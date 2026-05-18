@@ -63,5 +63,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.17.1'
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0'
 }
+
+

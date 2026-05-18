@@ -19,4 +19,19 @@ target_compile_definitions(stat_ort_plugin PUBLIC DART_SHARED_LIB)
 if (ANDROID)
   # Support Android 15 16k page size
   target_link_options(stat_ort_plugin PRIVATE "-Wl,-z,max-page-size=16384")
+
+  #manual linking after download
+  target_include_directories(stat_ort_plugin PRIVATE
+          "${CMAKE_CURRENT_SOURCE_DIR}"
+          "${CMAKE_CURRENT_SOURCE_DIR}/../android/src/include"
+  )
+
+  add_library(onnxruntime SHARED IMPORTED)
+  set_target_properties(onnxruntime PROPERTIES IMPORTED_LOCATION
+          "${CMAKE_CURRENT_SOURCE_DIR}/../android/src/main/jniLibs/${ANDROID_ABI}/libonnxruntime.so"
+  )
+
+  target_link_libraries(stat_ort_plugin onnxruntime)
 endif()
+
+

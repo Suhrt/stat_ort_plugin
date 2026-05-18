@@ -1,3 +1,14 @@
+#TODO:
+iOS Intergration
+Android integration
+Macos integration
+Windows integration
+Linux integration
+
+
+Lisence
+Application id
+
 # stat_ort_plugin
 
 A new Flutter FFI plugin project.
