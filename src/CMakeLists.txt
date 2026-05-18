@@ -1,0 +1,22 @@
+# The Flutter tooling requires that developers have CMake 3.10 or later
+# installed. You should not increase this version, as doing so will cause
+# the plugin to fail to compile for some customers of the plugin.
+cmake_minimum_required(VERSION 3.10)
+
+project(stat_ort_plugin_library VERSION 0.0.1 LANGUAGES C)
+
+add_library(stat_ort_plugin SHARED
+  "stat_ort_plugin.c"
+)
+
+set_target_properties(stat_ort_plugin PROPERTIES
+  PUBLIC_HEADER stat_ort_plugin.h
+  OUTPUT_NAME "stat_ort_plugin"
+)
+
+target_compile_definitions(stat_ort_plugin PUBLIC DART_SHARED_LIB)
+
+if (ANDROID)
+  # Support Android 15 16k page size
+  target_link_options(stat_ort_plugin PRIVATE "-Wl,-z,max-page-size=16384")
+endif()

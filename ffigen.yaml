@@ -1,0 +1,15 @@
+# Run with `dart run ffigen --config ffigen.yaml`.
+name: StatOrtPluginBindings
+description: |
+  Bindings for `src/stat_ort_plugin.h`.
+
+  Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
+output: 'lib/stat_ort_plugin_bindings_generated.dart'
+headers:
+  entry-points:
+    - 'src/stat_ort_plugin.h'
+  include-directives:
+    - 'src/stat_ort_plugin.h'
+comments:
+  style: any
+  length: full
