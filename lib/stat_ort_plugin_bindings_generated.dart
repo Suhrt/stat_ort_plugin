@@ -22,12 +22,208 @@ class StatOrtPluginBindings {
     ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup,
   ) : _lookup = lookup;
 
-  int check_ort_status() {
-    return _check_ort_status();
+  ffi.Pointer<MelProcessor> mel_processor_new(
+    int sample_rate,
+    int n_fft,
+    int hop_length,
+    int win_length,
+    int n_mels,
+  ) {
+    return _mel_processor_new(
+      sample_rate,
+      n_fft,
+      hop_length,
+      win_length,
+      n_mels,
+    );
   }
 
-  late final _check_ort_statusPtr =
-      _lookup<ffi.NativeFunction<ffi.Int32 Function()>>('check_ort_status');
-  late final _check_ort_status = _check_ort_statusPtr
-      .asFunction<int Function()>();
+  late final _mel_processor_newPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<MelProcessor> Function(
+            ffi.Int,
+            ffi.Int,
+            ffi.Int,
+            ffi.Int,
+            ffi.Int,
+          )
+        >
+      >('mel_processor_new');
+  late final _mel_processor_new = _mel_processor_newPtr
+      .asFunction<
+        ffi.Pointer<MelProcessor> Function(int, int, int, int, int)
+      >();
+
+  void mel_processor_free(ffi.Pointer<MelProcessor> mp) {
+    return _mel_processor_free(mp);
+  }
+
+  late final _mel_processor_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<MelProcessor>)>>(
+        'mel_processor_free',
+      );
+  late final _mel_processor_free = _mel_processor_freePtr
+      .asFunction<void Function(ffi.Pointer<MelProcessor>)>();
+
+  ffi.Pointer<ffi.Float> mel_processor_extract(
+    ffi.Pointer<MelProcessor> mp,
+    ffi.Pointer<ffi.Float> samples,
+    int num_samples,
+    ffi.Pointer<ffi.Int> out_num_frames,
+  ) {
+    return _mel_processor_extract(mp, samples, num_samples, out_num_frames);
+  }
+
+  late final _mel_processor_extractPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Float> Function(
+            ffi.Pointer<MelProcessor>,
+            ffi.Pointer<ffi.Float>,
+            ffi.Int,
+            ffi.Pointer<ffi.Int>,
+          )
+        >
+      >('mel_processor_extract');
+  late final _mel_processor_extract = _mel_processor_extractPtr
+      .asFunction<
+        ffi.Pointer<ffi.Float> Function(
+          ffi.Pointer<MelProcessor>,
+          ffi.Pointer<ffi.Float>,
+          int,
+          ffi.Pointer<ffi.Int>,
+        )
+      >();
+
+  void mel_data_free(ffi.Pointer<ffi.Float> data) {
+    return _mel_data_free(data);
+  }
+
+  late final _mel_data_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Float>)>>(
+        'mel_data_free',
+      );
+  late final _mel_data_free = _mel_data_freePtr
+      .asFunction<void Function(ffi.Pointer<ffi.Float>)>();
+
+  ffi.Pointer<VaaniPipeline> vaani_pipeline_init(
+    ffi.Pointer<ffi.Char> enc_path,
+    ffi.Pointer<ffi.Char> dec_path,
+    ffi.Pointer<ffi.Char> vocab_path,
+    int encoder_threads,
+    int decoder_threads,
+  ) {
+    return _vaani_pipeline_init(
+      enc_path,
+      dec_path,
+      vocab_path,
+      encoder_threads,
+      decoder_threads,
+    );
+  }
+
+  late final _vaani_pipeline_initPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<VaaniPipeline> Function(
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Pointer<ffi.Char>,
+            ffi.Int,
+            ffi.Int,
+          )
+        >
+      >('vaani_pipeline_init');
+  late final _vaani_pipeline_init = _vaani_pipeline_initPtr
+      .asFunction<
+        ffi.Pointer<VaaniPipeline> Function(
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          ffi.Pointer<ffi.Char>,
+          int,
+          int,
+        )
+      >();
+
+  void vaani_pipeline_free(ffi.Pointer<VaaniPipeline> p) {
+    return _vaani_pipeline_free(p);
+  }
+
+  late final _vaani_pipeline_freePtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<VaaniPipeline>)>
+      >('vaani_pipeline_free');
+  late final _vaani_pipeline_free = _vaani_pipeline_freePtr
+      .asFunction<void Function(ffi.Pointer<VaaniPipeline>)>();
+
+  ffi.Pointer<ffi.Char> vaani_pipeline_transcribe(
+    ffi.Pointer<VaaniPipeline> p,
+    ffi.Pointer<ffi.Char> wav_path,
+  ) {
+    return _vaani_pipeline_transcribe(p, wav_path);
+  }
+
+  late final _vaani_pipeline_transcribePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<ffi.Char> Function(
+            ffi.Pointer<VaaniPipeline>,
+            ffi.Pointer<ffi.Char>,
+          )
+        >
+      >('vaani_pipeline_transcribe');
+  late final _vaani_pipeline_transcribe = _vaani_pipeline_transcribePtr
+      .asFunction<
+        ffi.Pointer<ffi.Char> Function(
+          ffi.Pointer<VaaniPipeline>,
+          ffi.Pointer<ffi.Char>,
+        )
+      >();
+
+  void vaani_string_free(ffi.Pointer<ffi.Char> str) {
+    return _vaani_string_free(str);
+  }
+
+  late final _vaani_string_freePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'vaani_string_free',
+      );
+  late final _vaani_string_free = _vaani_string_freePtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+
+  void compute_fft(ffi.Pointer<complex_t> x, int n) {
+    return _compute_fft(x, n);
+  }
+
+  late final _compute_fftPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Pointer<complex_t>, ffi.Int)>
+      >('compute_fft');
+  late final _compute_fft = _compute_fftPtr
+      .asFunction<void Function(ffi.Pointer<complex_t>, int)>();
+
+  void normalize_whitespace(ffi.Pointer<ffi.Char> str) {
+    return _normalize_whitespace(str);
+  }
+
+  late final _normalize_whitespacePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Char>)>>(
+        'normalize_whitespace',
+      );
+  late final _normalize_whitespace = _normalize_whitespacePtr
+      .asFunction<void Function(ffi.Pointer<ffi.Char>)>();
+}
+
+final class MelProcessor extends ffi.Opaque {}
+
+final class VaaniPipeline extends ffi.Opaque {}
+
+/// --- Internal C API (Ignored by Dart/FFI) ---
+final class complex_t extends ffi.Struct {
+  @ffi.Float()
+  external double re;
+
+  @ffi.Float()
+  external double im;
 }

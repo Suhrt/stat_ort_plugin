@@ -7,11 +7,15 @@ project(stat_ort_plugin_library VERSION 0.0.1 LANGUAGES C)
 
 add_library(stat_ort_plugin SHARED
   "stat_ort_plugin.c"
+  "mel.c"
+  "compute_fft.c"
+  "normalize_white_space.c"
 )
 
 set_target_properties(stat_ort_plugin PROPERTIES
   PUBLIC_HEADER stat_ort_plugin.h
   OUTPUT_NAME "stat_ort_plugin"
+
 )
 
 target_compile_definitions(stat_ort_plugin PUBLIC DART_SHARED_LIB)
@@ -31,7 +35,7 @@ if (ANDROID)
           "${CMAKE_CURRENT_SOURCE_DIR}/../android/src/main/jniLibs/${ANDROID_ABI}/libonnxruntime.so"
   )
 
-  target_link_libraries(stat_ort_plugin onnxruntime)
+  target_link_libraries(stat_ort_plugin onnxruntime log)
 endif()
 
 

@@ -1,5 +1,7 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stat_ort_plugin/stat_ort_plugin.dart' as stat_ort_plugin;
+import 'package:stat_ort_plugin/stat_ort_plugin.dart';
+import 'package:stat_ort_plugin_example/load_asset.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,50 +15,66 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  // Changed: Replaced sum variables with a boolean for ORT status
-  late bool isOrtReady;
+  Vaani? vaani;
+  String transcript = "";
+  bool isProcessing = false;
 
   @override
-  void initState() {
-    super.initState();
-    // Changed: Call the ONNX Runtime initialization check
-    try {
-      isOrtReady = stat_ort_plugin.isOrtInitialized();
-    } catch (e, stacktrace) {
-      isOrtReady = false;
-      debugPrint('ORT INITIALIZATION ERROR: $e');
-      debugPrint('STACKTRACE: $stacktrace');
-      isOrtReady = false;
-    }
+  void dispose() {
+    // Prevent memory leaks by freeing the C pipeline when the app closes
+    vaani?.dispose();
+    super.dispose();
+  }
+
+  Future<void> init() async {
+    if (isProcessing) return;
+    print('loading models');
+    loadModel();
+  }
+
+  Future<void> loadModel() async {
+    Stopwatch stopwatch = Stopwatch()..start();
+    final encPath = await loadAsset('assets/encoder-vaani.onnx');
+    final decPath = await loadAsset('assets/decoder_joint-vaani.onnx');
+    final tokenPath = await loadAsset('assets/tokens.txt');
+    print("loaded to memory in ${stopwatch.elapsedMilliseconds}");
+    stopwatch.reset();
+    vaani = await Vaani.create(encPath, decPath, tokenPath, 3, 1);
+    print("model created in ${stopwatch.elapsedMilliseconds}");
+    stopwatch.reset();
+    final audioPath = await loadAsset('assets/audio.wav');
+    final transcript = await vaani!.transcribe(audioPath);
+    print("transcription took ${stopwatch.elapsedMilliseconds}");
+    print(transcript);
   }
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 25);
-    const spacerSmall = SizedBox(height: 10);
+    const spacerSmall = SizedBox(height: 20);
 
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('ORT Native Plugin')),
+        appBar: AppBar(title: const Text('Vaani FFI C')),
         body: SingleChildScrollView(
           child: Container(
-            // Corrected: .all to EdgeInsets.all
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(16),
+            width: double.infinity,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text(
-                  'ONNX Runtime Status:',
-                  style: textStyle,
-                  // Corrected: .center to TextAlign.center
-                  textAlign: TextAlign.center,
+                ElevatedButton(
+                  onPressed: isProcessing ? null : init,
+                  child: Text(isProcessing ? 'Processing...' : 'Start'),
                 ),
                 spacerSmall,
-                // Changed: Display ORT status instead of sum calculations
-                Text(
-                  isOrtReady ? '✅ Initialized Successfully' : '❌ Initialization Failed',
-                  style: textStyle,
-                  textAlign: TextAlign.center,
-                ),
+                if (isProcessing)
+                  const CupertinoActivityIndicator()
+                else if (transcript.isNotEmpty)
+                  Text(
+                    transcript,
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.center,
+                  )
               ],
             ),
           ),

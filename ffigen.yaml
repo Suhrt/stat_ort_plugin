@@ -13,3 +13,5 @@ headers:
 comments:
   style: any
   length: full
+compiler-opts:
+  - '-I./android/src/include'
