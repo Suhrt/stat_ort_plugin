@@ -21,6 +21,8 @@ set_target_properties(stat_ort_plugin PROPERTIES
 
 target_compile_definitions(stat_ort_plugin PUBLIC DART_SHARED_LIB)
 
+target_compile_options(stat_ort_plugin PRIVATE -O3 -ffast-math)
+
 if (ANDROID)
   # Support Android 15 16k page size
   target_link_options(stat_ort_plugin PRIVATE "-Wl,-z,max-page-size=16384")

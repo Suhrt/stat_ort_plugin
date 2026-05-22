@@ -88,7 +88,7 @@ void mel_processor_free(MelProcessor *mp) {
     free(mp);
 }
 
-float* mel_processor_extract(MelProcessor *mp, const float *samples, int num_samples, int *out_num_frames) {
+float* mel_processor_extract(MelProcessor *mp, const float * restrict samples, int num_samples, int *out_num_frames) {
     if (num_samples == 0) {
         *out_num_frames = 0;
         return NULL;
@@ -96,7 +96,7 @@ float* mel_processor_extract(MelProcessor *mp, const float *samples, int num_sam
 
     int pad = mp->win_length / 2;
     int padded_len = num_samples + 2 * pad;
-    float *padded = (float*)malloc(padded_len * sizeof(float));
+    float * restrict padded = (float*)malloc(padded_len * sizeof(float));
 
     memcpy(padded + pad, samples, num_samples * sizeof(float));
 
@@ -117,12 +117,12 @@ float* mel_processor_extract(MelProcessor *mp, const float *samples, int num_sam
     }
     *out_num_frames = num_frames;
 
-    float *power_spec = (float*)malloc(num_frames * mp->n_freqs * sizeof(float));
-    complex_t *fft_buffer = (complex_t*)malloc(mp->n_fft * sizeof(complex_t));
+    float * restrict power_spec = (float*)malloc(num_frames * mp->n_freqs * sizeof(float));
+    complex_t * restrict fft_buffer = (complex_t*)malloc(mp->n_fft * sizeof(complex_t));
 
     for (int i = 0; i < num_frames; i++) {
         int start = i * mp->hop_length;
-        
+
         for (int j = 0; j < mp->n_fft; j++) {
             if (j < mp->win_length) {
                 fft_buffer[j].re = padded[start + j] * mp->hann_window[j];
@@ -144,8 +144,9 @@ float* mel_processor_extract(MelProcessor *mp, const float *samples, int num_sam
     free(fft_buffer);
     free(padded);
 
-    float *mel = (float*)malloc(num_frames * mp->n_mels * sizeof(float));
+    float * restrict mel = (float*)malloc(num_frames * mp->n_mels * sizeof(float));
 
+    /* Replace this nested loop with cblas_sgemm from OpenBLAS/Accelerate if a BLAS library is available */
     for (int i = 0; i < num_frames; i++) {
         for (int m = 0; m < mp->n_mels; m++) {
             float sum = 0.0f;
@@ -158,26 +159,43 @@ float* mel_processor_extract(MelProcessor *mp, const float *samples, int num_sam
 
     free(power_spec);
 
-    for (int m = 0; m < mp->n_mels; m++) {
-        float sum = 0.0f;
-        for (int i = 0; i < num_frames; i++) {
-            sum += mel[i * mp->n_mels + m];
-        }
-        float mean = sum / (float)num_frames;
+    /* Changed normalization to compute sequentially across frames to prevent cache thrashing */
+    float * restrict means = (float*)calloc(mp->n_mels, sizeof(float));
+    float * restrict vars = (float*)calloc(mp->n_mels, sizeof(float));
+    float inv_num_frames = 1.0f / (float)num_frames;
 
-        float var_sum = 0.0f;
-        for (int i = 0; i < num_frames; i++) {
-            float diff = mel[i * mp->n_mels + m] - mean;
-            var_sum += diff * diff;
-        }
-        float denom = (num_frames - 1.0f) > 1.0f ? (num_frames - 1.0f) : 1.0f;
-        float var = var_sum / denom;
-        float scale = 1.0f / (sqrtf(var) + 1e-5f);
-
-        for (int i = 0; i < num_frames; i++) {
-            mel[i * mp->n_mels + m] = (mel[i * mp->n_mels + m] - mean) * scale;
+    for (int i = 0; i < num_frames; i++) {
+        for (int m = 0; m < mp->n_mels; m++) {
+            means[m] += mel[i * mp->n_mels + m];
         }
     }
+
+    for (int m = 0; m < mp->n_mels; m++) {
+        means[m] *= inv_num_frames; /* Multiplication is faster than division */
+    }
+
+    for (int i = 0; i < num_frames; i++) {
+        for (int m = 0; m < mp->n_mels; m++) {
+            float diff = mel[i * mp->n_mels + m] - means[m];
+            vars[m] += diff * diff;
+        }
+    }
+
+    float denom = (num_frames - 1.0f) > 1.0f ? (num_frames - 1.0f) : 1.0f;
+    float inv_denom = 1.0f / denom;
+
+    for (int m = 0; m < mp->n_mels; m++) {
+        vars[m] = 1.0f / (sqrtf(vars[m] * inv_denom) + 1e-5f); /* Store scaling factor to avoid re-calculation */
+    }
+
+    for (int i = 0; i < num_frames; i++) {
+        for (int m = 0; m < mp->n_mels; m++) {
+            mel[i * mp->n_mels + m] = (mel[i * mp->n_mels + m] - means[m]) * vars[m];
+        }
+    }
+
+    free(means);
+    free(vars);
 
     return mel;
 }
