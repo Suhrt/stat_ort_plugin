@@ -6,8 +6,6 @@
 #include "stat_ort_plugin.h"
 #include <onnxruntime_c_api.h>
 
-
-
 const OrtApi* g_ort = NULL;
 
 struct VaaniPipeline {
@@ -29,29 +27,6 @@ struct VaaniPipeline {
             return NULL; \
         } \
     } while (0)
-
-static char** load_vocab(const char* vocab_path, int* out_size) {
-    LOGD("Attempting to load vocab from: %s", vocab_path);
-    FILE* f = fopen(vocab_path, "r");
-    if (!f) {
-        LOGE("Failed to open vocab file at %s", vocab_path);
-        return NULL;
-    }
-
-    char** vocab = NULL;
-    int count = 0;
-    char line[256];
-    while (fgets(line, sizeof(line), f)) {
-        line[strcspn(line, "\r\n")] = 0;
-        vocab = realloc(vocab, (count + 1) * sizeof(char*));
-        vocab[count] = strdup(line);
-        count++;
-    }
-    fclose(f);
-    *out_size = count;
-    LOGD("Successfully loaded %d vocab tokens", count);
-    return vocab;
-}
 
 FFI_EXPORT VaaniPipeline* vaani_pipeline_init(
         const char* enc_path, const char* dec_path, const char* vocab_path,
@@ -275,7 +250,7 @@ FFI_EXPORT char* vaani_pipeline_transcribe(VaaniPipeline* p, const char* wav_pat
     OrtValue* current_h2_out = t_h2_B;
 
     const char* dec_in_names[] = {"encoder_outputs", "targets", "target_length", "input_states_1", "input_states_2"};
-    const char* dec_out_names[] = {"logits", "output_states_1", "output_states_2", "output_states_3", "output_states_4"};
+    const char* dec_out_names[] = {"outputs", "prednet_lengths", "output_states_1", "output_states_2"};
 
     LOGD("Starting Decoder Loop over %d time steps...", time_steps);
     int t = 0;

@@ -10,6 +10,7 @@ add_library(stat_ort_plugin SHARED
   "mel.c"
   "compute_fft.c"
   "normalize_white_space.c"
+  "load_vocab.c"
 )
 
 set_target_properties(stat_ort_plugin PROPERTIES

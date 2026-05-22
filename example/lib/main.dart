@@ -26,6 +26,12 @@ class _MyAppState extends State<MyApp> {
     super.dispose();
   }
 
+  @override
+  void initState() {
+    init();
+    super.initState();
+  }
+
   Future<void> init() async {
     if (isProcessing) return;
     print('loading models');

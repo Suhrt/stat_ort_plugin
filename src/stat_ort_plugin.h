@@ -45,6 +45,7 @@ typedef struct {
 
 void compute_fft(complex_t* x, int n);
 void normalize_whitespace(char* str);
+char** load_vocab(const char* vocab_path, int* out_size);
 
 #ifdef __cplusplus
 }
