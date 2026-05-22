@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp> {
     final tokenPath = await loadAsset('assets/tokens.txt');
     print("loaded to memory in ${stopwatch.elapsedMilliseconds}");
     stopwatch.reset();
-    vaani = await Vaani.create(encPath, decPath, tokenPath, 3, 1);
+    vaani = await Vaani.create(encPath, decPath, tokenPath, 4);
     print("model created in ${stopwatch.elapsedMilliseconds}");
     stopwatch.reset();
     final audioPath = await loadAsset('assets/audio.wav');

@@ -5,9 +5,9 @@ import 'dart:isolate';
 import 'package:ffi/ffi.dart';
 
 typedef VaaniInitC =
-Pointer<Void> Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32, Int32);
+Pointer<Void> Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Int32);
 typedef VaaniInitDart =
-Pointer<Void> Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int);
+Pointer<Void> Function(Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int);
 
 typedef VaaniFreeC = Void Function(Pointer<Void>);
 typedef VaaniFreeDart = void Function(Pointer<Void>);
@@ -52,7 +52,6 @@ class Vaani {
       String decPath,
       String vocabPath,
       int encThreads,
-      int decThreads,
       ) async {
     // Look up the function on the current isolate — _dylib is valid here.
     // DynamicLibrary is NOT sendable across isolate boundaries, so we must
@@ -70,8 +69,7 @@ class Vaani {
         encPathPtr,
         decPathPtr,
         vocabPathPtr,
-        encThreads,
-        decThreads,
+        encThreads
       );
 
       calloc.free(encPathPtr);
