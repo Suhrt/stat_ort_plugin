@@ -21,37 +21,24 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
-    // Prevent memory leaks by freeing the C pipeline when the app closes
     vaani?.dispose();
     super.dispose();
   }
 
-  @override
-  void initState() {
-    init();
-    super.initState();
-  }
 
-  Future<void> init() async {
-    if (isProcessing) return;
-    print('loading models');
-    loadModel();
-  }
-
-  Future<void> loadModel() async {
-    Stopwatch stopwatch = Stopwatch()..start();
+  Future<void> transcribe() async {
+    //Load models from download/asset delivery. DO NOT load from asset
     final encPath = await loadAsset('assets/encoder-vaani.onnx');
     final decPath = await loadAsset('assets/decoder_joint-vaani.onnx');
     final tokenPath = await loadAsset('assets/tokens.txt');
-    print("loaded to memory in ${stopwatch.elapsedMilliseconds}");
-    stopwatch.reset();
+
     vaani = await Vaani.create(encPath, decPath, tokenPath, 4);
-    print("model created in ${stopwatch.elapsedMilliseconds}");
-    stopwatch.reset();
     final audioPath = await loadAsset('assets/audio.wav');
-    final transcript = await vaani!.transcribe(audioPath);
-    print("transcription took ${stopwatch.elapsedMilliseconds}");
-    print(transcript);
+    transcript = await vaani!.transcribe(audioPath);
+
+    setState(() {
+      isProcessing = false;
+    });
   }
 
   @override
@@ -69,7 +56,7 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 ElevatedButton(
-                  onPressed: isProcessing ? null : init,
+                  onPressed: isProcessing ? null : transcribe,
                   child: Text(isProcessing ? 'Processing...' : 'Start'),
                 ),
                 spacerSmall,
