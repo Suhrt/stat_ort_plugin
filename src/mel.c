@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "stat_ort_plugin.h"
+#include "vaani_internal.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

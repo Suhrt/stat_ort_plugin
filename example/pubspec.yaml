@@ -72,6 +72,8 @@ flutter:
     - assets/decoder_joint-vaani.onnx
     - assets/encoder-vaani.onnx
     - assets/tokens.txt
+    - assets/silero_vad.onnx
+    - assets/voxblink2_samresnet34_ft.onnx
 
   # To add assets to your application, add an assets section, like this:
   # assets:

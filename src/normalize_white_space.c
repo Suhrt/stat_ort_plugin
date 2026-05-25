@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <string.h>
+#include "vaani_internal.h"
 
 void normalize_whitespace(char* str) {
     if (!str) return;
@@ -8,7 +9,6 @@ void normalize_whitespace(char* str) {
     int in_space = 1;
 
     while (*read) {
-        // CHANGED: Identify and replace the "▁" token with a space, advancing read pointer by token byte length
         if (strncmp(read, "▁", strlen("▁")) == 0) {
             if (!in_space) {
                 *write++ = ' ';

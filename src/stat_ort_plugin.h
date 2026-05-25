@@ -1,5 +1,6 @@
 #ifndef STAT_ORT_PLUGIN_H
 #define STAT_ORT_PLUGIN_H
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,26 +22,27 @@ extern "C" {
 #define FFI_EXPORT __attribute__((visibility("default"))) __attribute__((used))
 #endif
 
-/* ── Public FFI API (Dart-visible) ── */
+// Opaque pointers for FFI
 typedef struct VaaniPipeline VaaniPipeline;
+typedef struct VaaniStreamState VaaniStreamState;
 
-FFI_EXPORT VaaniPipeline* vaani_pipeline_init(const char* enc_path, const char* dec_path, const char* vocab_path, int encoder_threads);
-FFI_EXPORT void           vaani_pipeline_free(VaaniPipeline* p);
-FFI_EXPORT char*          vaani_pipeline_transcribe(VaaniPipeline* p, const char* wav_path);
-FFI_EXPORT void           vaani_string_free(char* str);
+// String memory management
+FFI_EXPORT void vaani_string_free(char* str);
 
-/* ── Internal C API (not exported, not visible to Dart) ── */
-typedef struct MelProcessor MelProcessor;
+// Pipeline Init / Free
+FFI_EXPORT VaaniPipeline* vaani_pipeline_init(
+        const char* enc_path, const char* dec_path, const char* vocab_path,
+        const char* vad_path, const char* speaker_path, int encoder_threads);
+FFI_EXPORT void vaani_pipeline_free(VaaniPipeline* p);
 
-MelProcessor* mel_processor_new(int sample_rate, int n_fft, int hop_length, int win_length, int n_mels);
-void          mel_processor_free(MelProcessor* mp);
-float*        mel_processor_extract(MelProcessor* mp, const float* samples, int num_samples, int* out_num_frames);
-void          mel_data_free(float* data);
+// File Processing
+FFI_EXPORT char* vaani_pipeline_transcribe(VaaniPipeline* p, const char* wav_path);
 
-typedef struct { float re; float im; } complex_t;
-void   compute_fft(complex_t* x, int n);
-void   normalize_whitespace(char* str);
-char** load_vocab(const char* vocab_path, int* out_size);
+// Streaming API
+FFI_EXPORT VaaniStreamState* vaani_stream_init(VaaniPipeline* pipeline, const char* out_wav_path);
+FFI_EXPORT char* vaani_stream_push_chunk(VaaniStreamState* state, const int16_t* pcm_data, int num_samples);
+FFI_EXPORT void vaani_stream_close(VaaniStreamState* state);
+
 
 #ifdef __cplusplus
 }
