@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   bool isProcessing = false;
   bool isStreaming = false;
 
+
   @override
   void dispose() {
     isStreaming = false;
