@@ -38,6 +38,9 @@ FFI_EXPORT char* vaani_pipeline_transcribe(VaaniPipeline* p, const char* wav_pat
 
     fseek(file, 12, SEEK_SET);
     while (fread(chunk_header, 1, 8, file) == 8) {
+        // WAV is little-endian. Assemble multi-byte fields from individual
+        // bytes (rather than casting/reading raw) so parsing is correct
+        // regardless of host byte order.
         int chunk_size = (int)(chunk_header[4]         |
                                (chunk_header[5] <<  8) |
                                (chunk_header[6] << 16) |
@@ -105,8 +108,8 @@ FFI_EXPORT char* vaani_pipeline_transcribe(VaaniPipeline* p, const char* wav_pat
     }
 
     int total_samples = data_size / sizeof(int16_t);
-    float duration_sec = (float)total_samples / 16000.0f;
-    LOGD("Audio data: %d bytes, %d samples, %.2f seconds", data_size, total_samples, duration_sec);
+    LOGD("Audio data: %d bytes, %d samples, %.2f seconds",
+         data_size, total_samples, (float)total_samples / 16000.0f);
 
     if (total_samples < 512) {
         LOGE("vaani_pipeline_transcribe: Audio too short (%d samples)", total_samples);

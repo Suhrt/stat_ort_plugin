@@ -5,13 +5,15 @@
 Pod::Spec.new do |s|
   s.name             = 'stat_ort_plugin'
   s.version          = '0.0.1'
-  s.summary          = 'A new Flutter FFI plugin project.'
+  s.summary          = 'On-device Vaani ASR for Flutter via FFI (ONNX Runtime).'
   s.description      = <<-DESC
-A new Flutter FFI plugin project.
+On-device speech recognition (Vaani ASR) for Flutter via dart:ffi — file and
+streaming transcription with Silero VAD and speaker diarization, powered by
+ONNX Runtime.
                        DESC
-  s.homepage         = 'http://example.com'
-  s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.homepage         = 'https://github.com/your-org/stat_ort_plugin'
+  s.license          = { :type => 'MIT', :file => '../LICENSE' }
+  s.author           = { 'stat_ort_plugin contributors' => 'email@example.com' }
 
   # This will ensure the source files in Classes/ are included in the native
   # builds of apps using this FFI plugin. Podspec does not support relative

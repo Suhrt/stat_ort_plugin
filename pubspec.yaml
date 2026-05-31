@@ -1,7 +1,19 @@
 name: stat_ort_plugin
-description: "A new Flutter FFI plugin project."
+description: >-
+  On-device speech recognition (Vaani ASR) for Flutter via dart:ffi — file and
+  streaming transcription with Silero VAD and speaker diarization, powered by
+  ONNX Runtime.
 version: 0.0.1
-homepage:
+# TODO: point these at your published repository before `dart pub publish`.
+homepage: https://github.com/your-org/stat_ort_plugin
+repository: https://github.com/your-org/stat_ort_plugin
+issue_tracker: https://github.com/your-org/stat_ort_plugin/issues
+topics:
+  - speech-recognition
+  - asr
+  - onnx
+  - ffi
+  - audio
 
 environment:
   sdk: ^3.11.5

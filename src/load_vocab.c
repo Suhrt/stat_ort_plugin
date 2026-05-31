@@ -28,6 +28,15 @@ char** load_vocab(const char* vocab_path, int* out_size) {
         }
         vocab = tmp;
         vocab[count] = strdup(line);
+        if (!vocab[count]) {
+            // Out of memory: free everything already loaded so callers never
+            // see a vocab array with a NULL hole in it (which would crash the
+            // decode loop and vaani_pipeline_free).
+            for (int i = 0; i < count; i++) free(vocab[i]);
+            free(vocab);
+            fclose(f);
+            return NULL;
+        }
         count++;
     }
 

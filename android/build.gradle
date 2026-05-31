@@ -24,6 +24,12 @@ rootProject.allprojects {
 
 apply plugin: "com.android.library"
 
+def onnxVersion = "1.26.0"
+
+// Directory into which we unpack the prebuilt native libs from the
+// onnxruntime-android AAR. Not committed; regenerated on every build.
+def onnxNativeDir = layout.buildDirectory.dir("onnxruntime-native").get().asFile
+
 android {
     namespace = "com.example.stat_ort_plugin"
 
@@ -59,11 +65,40 @@ android {
 
     defaultConfig {
         minSdk = 24
+
+        // Tell CMake where the extracted libonnxruntime.so lives (see the
+        // extractOnnxRuntime task below). The native build links against it.
+        externalNativeBuild {
+            cmake {
+                arguments "-DONNXRUNTIME_LIB_DIR=${onnxNativeDir}/jni"
+            }
+        }
     }
 }
 
+// Resolve the AAR separately so we can crack it open and pull out the .so.
+configurations {
+    onnxruntimeAar
+}
+
 dependencies {
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.26.0'
+    // `implementation` packages libonnxruntime.so into the consuming APK at
+    // runtime; `onnxruntimeAar` is just used to extract the .so for linking.
+    implementation "com.microsoft.onnxruntime:onnxruntime-android:${onnxVersion}"
+    onnxruntimeAar "com.microsoft.onnxruntime:onnxruntime-android:${onnxVersion}"
+}
+
+// Extract jni/<abi>/libonnxruntime.so from the AAR so the CMake build has
+// something to link against — replaces the prebuilt .so that used to be
+// committed to the repo. Runs before the native build via preBuild.
+def extractOnnxRuntime = tasks.register("extractOnnxRuntime", Copy) {
+    from { configurations.onnxruntimeAar.collect { zipTree(it) } }
+    include "jni/**/*.so"
+    into onnxNativeDir
+}
+
+tasks.named("preBuild").configure {
+    dependsOn(extractOnnxRuntime)
 }
 
 

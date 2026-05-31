@@ -6,7 +6,15 @@
 #endif
 
 // Removed struct definition and 'static' keyword (now in header)
+//
+// Radix-2 Cooley-Tukey FFT, in place. n MUST be a power of two; the
+// bit-reversal and butterfly stages produce garbage otherwise, so guard
+// against it rather than silently corrupting the spectrum.
 void compute_fft(complex_t* x, int n) {
+    if (n <= 0 || (n & (n - 1)) != 0) {
+        LOGE("vaani: [FFT] n=%d is not a positive power of two; skipping", n);
+        return;
+    }
     for (int i = 1, j = 0; i < n; i++) {
         int bit = n >> 1;
         for (; j & bit; bit >>= 1) j ^= bit;

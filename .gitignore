@@ -32,3 +32,8 @@ migrate_working_dir/
 /build/
 /coverage/
 /example/assets
+
+# Prebuilt ONNX Runtime native libraries. Not committed — they are provided
+# at runtime by the `onnxruntime-android` Gradle dependency (see
+# android/build.gradle) and the `onnxruntime-c` CocoaPod (see ios podspec).
+android/src/main/jniLibs/
