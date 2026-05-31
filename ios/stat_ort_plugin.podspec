@@ -32,7 +32,12 @@ ONNX Runtime.
   s.dependency 'onnxruntime-c', '1.17.1'
   s.pod_target_xcconfig = { 'ENABLE_BITCODE' => 'NO' }
   s.static_framework = true
+  # Force the linker to keep the plugin's exported symbols. The app only
+  # resolves them at runtime via DynamicLibrary.process(), so without an
+  # anchor they'd be dead-stripped. Naming one FFI_EXPORT function is enough:
+  # iOS compiles all sources into a single unit (Classes/stat_ort_plugin.c),
+  # so anchoring one symbol keeps them all.
   s.user_target_xcconfig = {
-      'OTHER_LDFLAGS' => '-Wl,-u,_check_ort_status'
+      'OTHER_LDFLAGS' => '-Wl,-u,_vaani_pipeline_init'
     }
 end

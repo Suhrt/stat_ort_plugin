@@ -129,6 +129,10 @@ class _MyAppState extends State<MyApp> {
       androidConfig: AndroidRecordConfig(
         audioSource: AndroidAudioSource.voiceRecognition,
       ),
+      iosConfig: IosRecordConfig(
+        allowHapticsAndSystemSoundsDuringRecording: false,
+        categoryOptions: []
+       )
     ));
 
     // Forward raw recorder bytes straight to the worker — the plugin's

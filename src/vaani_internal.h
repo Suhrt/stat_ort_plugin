@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <math.h>
-#include <onnxruntime_c_api.h>
+#include "onnxruntime_c_api.h"
 
 #ifdef __ANDROID__
 #include <android/log.h>
