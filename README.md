@@ -46,7 +46,7 @@ Add the dependency (from a git ref or, once published, from pub.dev):
 dependencies:
   stat_ort_plugin:
     git:
-      url: https://github.com/your-org/stat_ort_plugin.git
+      url: https://github.com/suhrt/stat_ort_plugin
 ```
 
 No extra setup is needed: ONNX Runtime is pulled in automatically by the Android Gradle
