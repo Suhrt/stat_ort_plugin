@@ -1,3 +1,8 @@
+## 0.0.5
+
+* Shortened the package description to fit pub.dev's 60–180 character limit
+  (no functional changes).
+
 ## 0.0.4
 
 * Switched the FFI layer to the `ffigen`-generated bindings (`StatOrtPluginBindings`)
