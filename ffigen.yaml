@@ -4,7 +4,7 @@ description: |
   Bindings for `src/stat_ort_plugin.h`.
 
   Regenerate bindings with `dart run ffigen --config ffigen.yaml`.
-output: 'lib/stat_ort_plugin_bindings_generated.dart'
+output: 'lib/src/stat_ort_plugin_bindings_generated.dart'
 headers:
   entry-points:
     - 'src/stat_ort_plugin.h'

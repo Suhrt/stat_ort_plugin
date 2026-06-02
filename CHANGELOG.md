@@ -1,3 +1,19 @@
+## 0.0.4
+
+* Switched the FFI layer to the `ffigen`-generated bindings (`StatOrtPluginBindings`)
+  as the single source of truth; removed the duplicate hand-written typedefs.
+* Reorganized `lib/`: native library loading now lives in `src/native_library.dart`,
+  and the generated bindings moved to `src/` (internal, no longer importable from the
+  package root).
+* Added `NativeFinalizer` backstops to `Vaani` and `VaaniStream`: native resources are
+  freed on garbage collection if `dispose()`/`close()` is not called. Explicit
+  disposal still works and is preferred.
+* `Vaani.transcribe` and `createStream` now throw `StateError` if called after
+  `dispose()` instead of using a freed pointer.
+* Documentation and formatting: documented `VaaniStream`'s public API and ran
+  `dart format`. Fixed broken model-download and example links in the README.
+* No public API changes (`Vaani`, `VaaniStream`).
+
 ## 0.0.3
 
 Updated read me

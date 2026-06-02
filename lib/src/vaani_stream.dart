@@ -1,20 +1,19 @@
 part of '../stat_ort_plugin.dart';
 
-// ── Streaming session ───────────────────────────────────────────────────────
-//
-// Silero VAD inside the native plugin only accepts 512-sample frames at
-// 16 kHz. This class buffers incoming PCM and feeds the native side in
-// 512-sample chunks, dropping any fractional tail until either the next
-// pushChunk fills it or finish() is called.
-//
-// finish() must be called before close() to retrieve any in-progress
-// segment. close() alone will drop a trailing segment.
-
-class VaaniStream {
+/// A real-time streaming transcription session, created by [Vaani.createStream].
+///
+/// Silero VAD inside the native plugin only accepts 512-sample frames at
+/// 16 kHz. This class buffers incoming PCM and feeds the native side in
+/// 512-sample chunks, dropping any fractional tail until either the next
+/// [pushChunk] fills it or [finish] is called.
+///
+/// [finish] must be called before [close] to retrieve any in-progress
+/// segment. [close] alone will drop a trailing segment.
+class VaaniStream implements Finalizable {
   // Native VAD frame size. Do not change without changing the C side.
   static const int _frameSamples = 512;
 
-  final Pointer<Void> _streamState;
+  final Pointer<VaaniStreamState> _streamState;
 
   // Native scratch buffer for one VAD frame. Allocated once, reused per push.
   // Avoids per-chunk malloc/free in the FFI hot path.
@@ -27,16 +26,20 @@ class VaaniStream {
 
   bool _closed = false;
 
-  VaaniStream._(this._streamState)
-      : _frameBuf = calloc<Int16>(_frameSamples);
+  VaaniStream._(this._streamState) : _frameBuf = calloc<Int16>(_frameSamples) {
+    // Backstops: free the native stream state and the scratch buffer on GC if
+    // the caller forgets close(). close() detaches both first.
+    _streamFinalizer.attach(this, _streamState.cast(), detach: this);
+    _callocFinalizer?.attach(this, _frameBuf.cast(), detach: this);
+  }
 
-  // Push raw 16 kHz mono PCM (int16). Returns any finalised segment text
-  // that the native side emitted during this push, or null if nothing
-  // closed in this call. Multiple segments concatenate into one string.
-  //
-  // Callers should keep calling this with new audio and accumulating the
-  // returned strings; the actual end-of-utterance decision is made by the
-  // native VAD, not by chunk boundaries.
+  /// Push raw 16 kHz mono PCM (int16). Returns any finalised segment text
+  /// that the native side emitted during this push, or null if nothing
+  /// closed in this call. Multiple segments concatenate into one string.
+  ///
+  /// Callers should keep calling this with new audio and accumulating the
+  /// returned strings; the actual end-of-utterance decision is made by the
+  /// native VAD, not by chunk boundaries.
   String? pushChunk(Int16List pcmData) {
     if (_closed) {
       throw StateError('VaaniStream already closed');
@@ -107,20 +110,24 @@ class VaaniStream {
     // sublist + Int16List.fromList + setAll triple copy.
     dst.setRange(0, _frameSamples, src, srcOffset);
 
-    final resultPtr = _streamPush(_streamState, _frameBuf, _frameSamples);
+    final resultPtr = _bindings.vaani_stream_push_chunk(
+      _streamState,
+      _frameBuf,
+      _frameSamples,
+    );
     if (resultPtr != nullptr) {
-      final s = resultPtr.toDartString();
-      _stringFree(resultPtr);
+      final s = resultPtr.cast<Utf8>().toDartString();
+      _bindings.vaani_string_free(resultPtr);
       if (s.isNotEmpty) sb.write(s);
     }
   }
 
-  // Tell the native side to emit whatever segment it currently has buffered,
-  // and return that final text. Call this once when the user stops talking,
-  // before close(). Discards any sub-frame carry (< 512 samples) — that
-  // tail is too short to matter and would only contain trailing silence.
-  //
-  // Safe to call multiple times; subsequent calls return null.
+  /// Tell the native side to emit whatever segment it currently has buffered,
+  /// and return that final text. Call this once when the user stops talking,
+  /// before [close]. Discards any sub-frame carry (< 512 samples) — that
+  /// tail is too short to matter and would only contain trailing silence.
+  ///
+  /// Safe to call multiple times; subsequent calls return null.
   String? finish() {
     if (_closed) return null;
 
@@ -130,19 +137,21 @@ class VaaniStream {
     // received, which is what we want.
     _carryLen = 0;
 
-    final resultPtr = _streamFlush(_streamState);
+    final resultPtr = _bindings.vaani_stream_flush(_streamState);
     if (resultPtr == nullptr) return null;
-    final s = resultPtr.toDartString();
-    _stringFree(resultPtr);
+    final s = resultPtr.cast<Utf8>().toDartString();
+    _bindings.vaani_string_free(resultPtr);
     return s.isEmpty ? null : s;
   }
 
-  // Tear down the native stream and free the FFI scratch buffer.
-  // Call finish() first if you want the trailing segment.
+  /// Tear down the native stream and free the FFI scratch buffer.
+  /// Call [finish] first if you want the trailing segment.
   void close() {
     if (_closed) return;
     _closed = true;
-    _streamClose(_streamState);
+    _streamFinalizer.detach(this);
+    _callocFinalizer?.detach(this);
+    _bindings.vaani_stream_close(_streamState);
     calloc.free(_frameBuf);
   }
 }
