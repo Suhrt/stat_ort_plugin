@@ -1,9 +1,9 @@
-name: stat_ort_plugin
+name: Vaani ASR
 description: >-
   On-device speech recognition (Vaani ASR by IISc Bangalore) for Flutter via dart:ffi — file and
   streaming transcription with Silero VAD and speaker diarization, powered by
   ONNX Runtime.
-version: 0.0.2
+version: 0.0.3
 # TODO: point these at your published repository before `dart pub publish`.
 homepage: https://github.com/suhrt/stat_ort_plugin
 repository: https://github.com/suhrt/stat_ort_plugin
