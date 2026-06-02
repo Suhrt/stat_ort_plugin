@@ -40,15 +40,6 @@ app, download them on first launch rather than bundling hundreds of MB into your
 
 ## Installation
 
-Add the dependency (from a git ref or, once published, from pub.dev):
-
-```yaml
-dependencies:
-  stat_ort_plugin:
-    git:
-      url: https://github.com/suhrt/stat_ort_plugin
-```
-
 No extra setup is needed: ONNX Runtime is pulled in automatically by the Android Gradle
 dependency and the iOS CocoaPod.
 
@@ -101,16 +92,6 @@ A complete example (mic streaming + file transcription) is in [`example/`](examp
   serialization.
 - `vaani_pipeline_init` resolves the ONNX Runtime API once and is safe to call from
   multiple isolates.
-
-## Regenerating the FFI bindings
-
-`lib/stat_ort_plugin_bindings_generated.dart` is generated from `src/stat_ort_plugin.h`
-with [`package:ffigen`](https://pub.dev/packages/ffigen). It is committed so the package
-builds without a generation step. Regenerate after changing the header:
-
-```sh
-dart run ffigen --config ffigen.yaml
-```
 
 ## Debug logging
 
