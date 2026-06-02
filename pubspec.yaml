@@ -14,8 +14,6 @@ topics:
   - onnx
   - ffi
   - audio
-  - vaani
-  - iisc
 
 environment:
   sdk: ^3.11.5
