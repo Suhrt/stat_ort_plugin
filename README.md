@@ -28,11 +28,11 @@ macOS / Windows / Linux are not currently supported.
 This package does **not** ship any models. You supply ONNX model files and a vocabulary
 at runtime:
 
-- ASR encoder (`encoder-vaani.onnx`)
-- ASR decoder/joint (`decoder_joint-vaani.onnx`)
-- Vocabulary (`tokens.txt`)
-- *(optional)* Silero VAD (`silero_vad.onnx`) — required for streaming segmentation
-- *(optional)* Speaker embedding (`voxblink2_samresnet34_ft.onnx`) — required for diarization
+* ASR encoder ([`encoder-vaani.onnx`](https://www.google.com/search?q=%5Bhttps://stathealth.in/vaani/encoder_vaani.onnx%5D(https://stathealth.in/vaani/encoder_vaani.onnx)))
+* ASR decoder/joint ([`decoder_joint-vaani.onnx`](https://www.google.com/search?q=%5Bhttps://stathealth.in/vaani/decoder_joint-vaani.onnx%5D(https://stathealth.in/vaani/decoder_joint-vaani.onnx)))
+* Vocabulary ([`tokens.txt`](https://www.google.com/search?q=%5Bhttps://stathealth.in/vaani/tokens.txt%5D(https://stathealth.in/vaani/tokens.txt)))
+* *(optional)* Silero VAD ([`silero_vad.onnx`](https://www.google.com/search?q=%5Bhttps://stathealth.in/vaani/silero_vad.onnx%5D(https://stathealth.in/vaani/silero_vad.onnx))) — required for streaming segmentation
+* *(optional)* Speaker embedding ([`voxblink2_samresnet34_ft.onnx`](https://www.google.com/search?q=%5Bhttps://stathealth.in/vaani/voxblink2_samresnet34_ft.onnx%5D(https://stathealth.in/vaani/voxblink2_samresnet34_ft.onnx))) — required for diarization
 
 Audio must be **16 kHz, mono, 16-bit PCM**. See [NOTICE.md](NOTICE.md) for model licensing.
 The example app loads models from its assets and copies them to a temp directory; for a real
@@ -122,7 +122,3 @@ verbose-logging overhead.
 
 MIT — see [LICENSE](LICENSE). Third-party dependencies and models are listed in
 [NOTICE.md](NOTICE.md); verify model licenses for your use case before shipping.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).

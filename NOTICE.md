@@ -20,7 +20,7 @@ each model's license:
 
 - **Vaani ASR encoder / decoder** (`encoder-vaani.onnx`, `decoder_joint-vaani.onnx`,
   `tokens.txt`) — speech recognition models. Verify and comply with the license of
-  the Vaani model you use before redistributing.
+  the Vaani model you use before redistributing. https://huggingface.co/ARTPARK-IISc/Vaani-FastConformer-Multilingual
 - **Silero VAD** (`silero_vad.onnx`) — voice activity detection. MIT License.
   © Silero Team. https://github.com/snakers4/silero-vad
 - **Speaker embedding** (`voxblink2_samresnet34_ft.onnx`) — speaker diarization /
